@@ -109,16 +109,21 @@ inject_color_into_svg() {
   # The upstream SVG has no fill attribute. The website injects fill on the
   # <svg> element when rendering its preview. We do the same so the resulting
   # file looks like the one users would download from fonts.google.com.
+  #
+  # Parse as XML instead of poking at the markup with a regex: attribute order,
+  # whitespace, and pre-existing fill attributes all become non-issues, and
+  # register_namespace keeps the default xmlns on the root (otherwise
+  # ElementTree would rewrite it with a synthetic ns0: prefix).
   local file="$1" hex="$2"
   python3 -c "
-import sys, re
-p = sys.argv[1]
-hex_ = sys.argv[2]
-s = open(p).read()
-# Drop any existing fill on the root <svg> tag, then add ours.
-s = re.sub(r'(<svg\b[^>]*?)\s+fill=\"[^\"]*\"', r'\1', s, count=1)
-s = s.replace('<svg ', f'<svg fill=\"#{hex_}\" ', 1)
-open(p, 'w').write(s)
+import sys
+import xml.etree.ElementTree as ET
+
+path, hex_ = sys.argv[1], sys.argv[2]
+ET.register_namespace('', 'http://www.w3.org/2000/svg')
+tree = ET.parse(path)
+tree.getroot().set('fill', f'#{hex_}')
+tree.write(path, xml_declaration=False, encoding='utf-8')
 " "$file" "$hex"
 }
 
