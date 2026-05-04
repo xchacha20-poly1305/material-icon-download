@@ -1,0 +1,33 @@
+{
+  "skill_name": "material-icon-download",
+  "evals": [
+    {
+      "id": 0,
+      "name": "named-svg",
+      "prompt": "Download the Material Symbols home icon as an SVG and save it to ./icons/home.svg.",
+      "expected_output": "An SVG file at ./icons/home.svg containing a recognizable house path; default outlined family, 24px.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "descriptive-search",
+      "prompt": "I'm building a settings screen and need a Material icon that means 'sync this to the cloud' — something that suggests uploading or syncing data to cloud storage. Find a couple of options, pick the most popular one, and save it as an SVG in the current directory.",
+      "expected_output": "Script first calls search.sh with cloud/sync/upload keywords, presents options, then downloads (e.g. cloud_sync or cloud_upload) as an SVG.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "non-default-svg",
+      "prompt": "Get me the favorite icon as a 48px SVG, filled, with weight 700, in color #e91e63 (pink). Save it to ./out/favorite-pink.svg.",
+      "expected_output": "An SVG file at ./out/favorite-pink.svg with fill='#e91e63', size 48, fill axis 1, weight 700.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "android-drawable",
+      "prompt": "I need an Android vector drawable for the settings gear icon, rounded family. Save it to ./res/drawable/ic_settings.xml.",
+      "expected_output": "An Android XML drawable at ./res/drawable/ic_settings.xml with <vector> root, rounded path data.",
+      "files": []
+    }
+  ]
+}
