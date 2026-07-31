@@ -1,6 +1,7 @@
 ---
 name: material-icon-download
 description: Download Material Symbols icons from fonts.google.com/icons as SVG, PNG, or Android Vector Drawable. Use this whenever the user asks for a Material icon, Material Symbols icon, or asks to grab a "home icon", "search icon", etc. from Google Fonts — even if they don't explicitly say "Material" or name the format. Also use it for any reference to material-symbols-outlined / rounded / sharp, or when the user wants to find an icon by keyword (e.g., "I need an icon that means 'sync'") and download it.
+license: See LICENSE
 ---
 
 # Material Symbols icon download
