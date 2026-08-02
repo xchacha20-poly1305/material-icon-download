@@ -10,10 +10,10 @@ This skill fetches icons from `fonts.gstatic.com` directly. The URL pattern was 
 
 Two scripts live in `scripts/`:
 
-- `search.sh` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
-- `download.sh` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
+- `search.py` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
+- `download.py` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
 
-Both scripts are self-contained shell + `jq` + `curl` + `python3`. No node, no headless browser. PNG output additionally needs one of `rsvg-convert`, `cairosvg`, or `magick` (ImageMagick) on the path; the script picks whichever it finds.
+Both scripts are self-contained Python 3 (stdlib only). No node, no headless browser, no `jq` or `curl` dependency. PNG output additionally needs one of `rsvg-convert`, `cairosvg`, or `magick` (ImageMagick) on the path; the script picks whichever it finds.
 
 ## When to use this skill
 
@@ -36,7 +36,7 @@ Don't use it for non-Material icon sets (Font Awesome, Lucide, Heroicons, etc.) 
 ## Searching
 
 ```bash
-scripts/search.sh <keyword> [more keywords] [--limit N] [--json]
+scripts/search.py <keyword> [more keywords] [--limit N] [--json]
 ```
 
 - Multiple keywords are AND'd. `search.sh home house` finds icons that match both.
@@ -47,15 +47,15 @@ scripts/search.sh <keyword> [more keywords] [--limit N] [--json]
 Examples:
 
 ```bash
-scripts/search.sh search                # → search, search_off, manage_search…
-scripts/search.sh sync cloud            # → cloud_sync, cloud_upload…
-scripts/search.sh trash --limit 3       # top 3 trash-related icons
+scripts/search.py search                # → search, search_off, manage_search…
+scripts/search.py sync cloud            # → cloud_sync, cloud_upload…
+scripts/search.py trash --limit 3       # top 3 trash-related icons
 ```
 
 ## Downloading
 
 ```bash
-scripts/download.sh <icon_name> [options]
+scripts/download.py <icon_name> [options]
 ```
 
 Options (all optional except the icon name):
@@ -77,7 +77,7 @@ The auto-named filename matches what `fonts.google.com` produces on download, e.
 The script prints the resulting file path on stdout, so you can chain it:
 
 ```bash
-out=$(scripts/download.sh home --color 005bbb --out-dir ./icons)
+out=$(scripts/download.py home --color 005bbb --out-dir ./icons)
 echo "saved $out"
 ```
 
@@ -85,16 +85,16 @@ echo "saved $out"
 
 ```bash
 # Default 24px outlined SVG
-scripts/download.sh home
+scripts/download.py home
 
 # Filled, heavy weight, 48px, in brand red
-scripts/download.sh favorite --fill 1 --weight 700 --size 48 --color e91e63
+scripts/download.py favorite --fill 1 --weight 700 --size 48 --color e91e63
 
 # Android drawable for the rounded family
-scripts/download.sh settings --family rounded --format drawable
+scripts/download.py settings --family rounded --format drawable
 
 # PNG for a slide deck, named explicitly
-scripts/download.sh download --format png --size 48 --output ~/decks/dl.png
+scripts/download.py download --format png --size 48 --output ~/decks/dl.png
 ```
 
 ## Format notes (why each format works the way it does)
