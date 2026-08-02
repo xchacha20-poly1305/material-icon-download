@@ -10,10 +10,18 @@ This skill fetches icons from `fonts.gstatic.com` directly. The URL pattern was 
 
 Two scripts live in `scripts/`:
 
-- `search.sh` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
-- `download.sh` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
+- `search.py` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
+- `download.py` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
 
-Both scripts are self-contained shell + `jq` + `curl` + `python3`. No node, no headless browser. PNG output additionally needs one of `rsvg-convert`, `cairosvg`, or `magick` (ImageMagick) on the path; the script picks whichever it finds.
+Both scripts are self-contained Python 3 (stdlib only for SVG/drawable). No node, no headless browser, no `jq` or `curl` dependency.
+
+PNG output requires an SVG rasterizer. The script tries them in this order:
+
+1. **`cairosvg`** (preferred) — pure Python, install with `pip install cairosvg`. Needs the system `libcairo2` library.
+2. **`rsvg-convert`** — CLI from `librsvg`, called as a subprocess. Common on Linux (`apt install librsvg2-bin`).
+3. **`magick`** — ImageMagick 7 CLI, called as a subprocess.
+
+If none is available the script exits with an error message listing the options.
 
 ## When to use this skill
 
@@ -29,17 +37,17 @@ Don't use it for non-Material icon sets (Font Awesome, Lucide, Heroicons, etc.) 
 
 ## Workflow
 
-1. **If the user gave you the exact icon name** (e.g., "home", "search", "favorite"): jump straight to `download.sh`.
-2. **If the user described the icon by meaning** ("an icon for cloud sync", "something that means delete"): run `search.sh` first to get candidates, show the top results, then download once the user picks one (or pick the most popular yourself if the user signaled they don't care).
+1. **If the user gave you the exact icon name** (e.g., "home", "search", "favorite"): jump straight to `download.py`.
+2. **If the user described the icon by meaning** ("an icon for cloud sync", "something that means delete"): run `search.py` first to get candidates, show the top results, then download once the user picks one (or pick the most popular yourself if the user signaled they don't care).
 3. **If the user is unsure about variant** (FILL/weight/grade/size): default to SVG, outlined, 24px, weight 400 — that matches what `fonts.google.com/icons` shows on first load. Mention you used defaults so they can change them.
 
 ## Searching
 
 ```bash
-scripts/search.sh <keyword> [more keywords] [--limit N] [--json]
+python3 scripts/search.py <keyword> [more keywords] [--limit N] [--json]
 ```
 
-- Multiple keywords are AND'd. `search.sh home house` finds icons that match both.
+- Multiple keywords are AND'd. `python3 scripts/search.py home house` finds icons that match both.
 - Output is `name <TAB> categories <TAB> popularity`. Higher popularity is more commonly used and usually what the user wants.
 - `--json` gives the full metadata entries for downstream scripting.
 - Metadata is cached at `$TMPDIR/material-symbols-skill/metadata.json` and refreshed once a day. The first call may take a few seconds (it downloads ~6 MB).
@@ -47,15 +55,15 @@ scripts/search.sh <keyword> [more keywords] [--limit N] [--json]
 Examples:
 
 ```bash
-scripts/search.sh search                # → search, search_off, manage_search…
-scripts/search.sh sync cloud            # → cloud_sync, cloud_upload…
-scripts/search.sh trash --limit 3       # top 3 trash-related icons
+python3 scripts/search.py search                # → search, search_off, manage_search…
+python3 scripts/search.py sync cloud            # → cloud_sync, cloud_upload…
+python3 scripts/search.py trash --limit 3       # top 3 trash-related icons
 ```
 
 ## Downloading
 
 ```bash
-scripts/download.sh <icon_name> [options]
+python3 scripts/download.py <icon_name> [options]
 ```
 
 Options (all optional except the icon name):
@@ -77,7 +85,7 @@ The auto-named filename matches what `fonts.google.com` produces on download, e.
 The script prints the resulting file path on stdout, so you can chain it:
 
 ```bash
-out=$(scripts/download.sh home --color 005bbb --out-dir ./icons)
+out=$(python3 scripts/download.py home --color 005bbb --out-dir ./icons)
 echo "saved $out"
 ```
 
@@ -85,23 +93,23 @@ echo "saved $out"
 
 ```bash
 # Default 24px outlined SVG
-scripts/download.sh home
+python3 scripts/download.py home
 
 # Filled, heavy weight, 48px, in brand red
-scripts/download.sh favorite --fill 1 --weight 700 --size 48 --color e91e63
+python3 scripts/download.py favorite --fill 1 --weight 700 --size 48 --color e91e63
 
 # Android drawable for the rounded family
-scripts/download.sh settings --family rounded --format drawable
+python3 scripts/download.py settings --family rounded --format drawable
 
 # PNG for a slide deck, named explicitly
-scripts/download.sh download --format png --size 48 --output ~/decks/dl.png
+python3 scripts/download.py download --format png --size 48 --output ~/decks/dl.png
 ```
 
 ## Format notes (why each format works the way it does)
 
 - **SVG**: fetched from `fonts.gstatic.com/.../{size}px.svg`. Upstream the file has no fill, so the script injects `fill="#<color>"` on the `<svg>` element to match what the website ships in its download. Edit the file freely; it's just XML.
 - **Drawable XML**: fetched from `fonts.gstatic.com/.../{size}px.xml`. The `<vector>` ships with `android:tint="?attr/colorControlNormal"` and a placeholder fill of `@android:color/white` — Android applies the actual color at render time. That's why `--color` is ignored here.
-- **PNG**: there is no upstream PNG. The website rasterizes client-side. The script does the same: fetch the SVG, inject the color, then render with `rsvg-convert` (preferred), `cairosvg`, or `magick`.
+- **PNG**: there is no upstream PNG. The website rasterizes client-side. The script does the same: fetch the SVG, inject the color, then rasterize locally. It first tries `import cairosvg` (Python library, `pip install cairosvg`); if unavailable it falls back to `rsvg-convert` or `magick` as a subprocess. See the dependency list above for install instructions.
 
 ## Variant URL construction (for reference)
 
