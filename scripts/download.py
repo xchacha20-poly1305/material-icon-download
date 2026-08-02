@@ -84,15 +84,18 @@ def download_file(url: str, dest: str):
 
 
 def svg_to_png(svg_path: str, png_path: str, size: int):
-    if shutil.which("rsvg-convert"):
-        subprocess.run(["rsvg-convert", "-w", str(size), "-h", str(size), "-o", png_path, svg_path], check=True)
-    elif shutil.which("cairosvg"):
-        subprocess.run(["cairosvg", svg_path, "-W", str(size), "-H", str(size), "-o", png_path], check=True)
-    elif shutil.which("magick"):
-        subprocess.run(["magick", "-background", "none", svg_path, "-resize", f"{size}x{size}", png_path], check=True)
-    else:
-        print("PNG export needs rsvg-convert, cairosvg, or magick (ImageMagick) installed.", file=sys.stderr)
-        sys.exit(1)
+    try:
+        import cairosvg
+        cairosvg.svg2png(url=svg_path, write_to=png_path,
+                         output_width=size, output_height=size)
+    except ImportError:
+        if shutil.which("rsvg-convert"):
+            subprocess.run(["rsvg-convert", "-w", str(size), "-h", str(size), "-o", png_path, svg_path], check=True)
+        elif shutil.which("magick"):
+            subprocess.run(["magick", "-background", "none", svg_path, "-resize", f"{size}x{size}", png_path], check=True)
+        else:
+            print("PNG export needs cairosvg (pip install cairosvg), rsvg-convert, or magick (ImageMagick).", file=sys.stderr)
+            sys.exit(1)
 
 
 def main():
