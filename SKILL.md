@@ -13,7 +13,15 @@ Two scripts live in `scripts/`:
 - `search.py` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
 - `download.py` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
 
-Both scripts are self-contained Python 3 (stdlib only). No node, no headless browser, no `jq` or `curl` dependency. PNG output additionally needs one of `rsvg-convert`, `cairosvg`, or `magick` (ImageMagick) on the path; the script picks whichever it finds.
+Both scripts are self-contained Python 3 (stdlib only for SVG/drawable). No node, no headless browser, no `jq` or `curl` dependency.
+
+PNG output requires an SVG rasterizer. The script tries them in this order:
+
+1. **`cairosvg`** (preferred) — pure Python, install with `pip install cairosvg`. Needs the system `libcairo2` library.
+2. **`rsvg-convert`** — CLI from `librsvg`, called as a subprocess. Common on Linux (`apt install librsvg2-bin`).
+3. **`magick`** — ImageMagick 7 CLI, called as a subprocess.
+
+If none is available the script exits with an error message listing the options.
 
 ## When to use this skill
 
@@ -101,7 +109,7 @@ python3 scripts/download.py download --format png --size 48 --output ~/decks/dl.
 
 - **SVG**: fetched from `fonts.gstatic.com/.../{size}px.svg`. Upstream the file has no fill, so the script injects `fill="#<color>"` on the `<svg>` element to match what the website ships in its download. Edit the file freely; it's just XML.
 - **Drawable XML**: fetched from `fonts.gstatic.com/.../{size}px.xml`. The `<vector>` ships with `android:tint="?attr/colorControlNormal"` and a placeholder fill of `@android:color/white` — Android applies the actual color at render time. That's why `--color` is ignored here.
-- **PNG**: there is no upstream PNG. The website rasterizes client-side. The script does the same: fetch the SVG, inject the color, then render with `rsvg-convert` (preferred), `cairosvg`, or `magick`.
+- **PNG**: there is no upstream PNG. The website rasterizes client-side. The script does the same: fetch the SVG, inject the color, then rasterize locally. It first tries `import cairosvg` (Python library, `pip install cairosvg`); if unavailable it falls back to `rsvg-convert` or `magick` as a subprocess. See the dependency list above for install instructions.
 
 ## Variant URL construction (for reference)
 
