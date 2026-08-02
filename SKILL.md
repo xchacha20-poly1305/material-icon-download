@@ -29,17 +29,17 @@ Don't use it for non-Material icon sets (Font Awesome, Lucide, Heroicons, etc.) 
 
 ## Workflow
 
-1. **If the user gave you the exact icon name** (e.g., "home", "search", "favorite"): jump straight to `download.sh`.
-2. **If the user described the icon by meaning** ("an icon for cloud sync", "something that means delete"): run `search.sh` first to get candidates, show the top results, then download once the user picks one (or pick the most popular yourself if the user signaled they don't care).
+1. **If the user gave you the exact icon name** (e.g., "home", "search", "favorite"): jump straight to `download.py`.
+2. **If the user described the icon by meaning** ("an icon for cloud sync", "something that means delete"): run `search.py` first to get candidates, show the top results, then download once the user picks one (or pick the most popular yourself if the user signaled they don't care).
 3. **If the user is unsure about variant** (FILL/weight/grade/size): default to SVG, outlined, 24px, weight 400 — that matches what `fonts.google.com/icons` shows on first load. Mention you used defaults so they can change them.
 
 ## Searching
 
 ```bash
-scripts/search.py <keyword> [more keywords] [--limit N] [--json]
+python3 scripts/search.py <keyword> [more keywords] [--limit N] [--json]
 ```
 
-- Multiple keywords are AND'd. `search.sh home house` finds icons that match both.
+- Multiple keywords are AND'd. `python3 scripts/search.py home house` finds icons that match both.
 - Output is `name <TAB> categories <TAB> popularity`. Higher popularity is more commonly used and usually what the user wants.
 - `--json` gives the full metadata entries for downstream scripting.
 - Metadata is cached at `$TMPDIR/material-symbols-skill/metadata.json` and refreshed once a day. The first call may take a few seconds (it downloads ~6 MB).
@@ -47,15 +47,15 @@ scripts/search.py <keyword> [more keywords] [--limit N] [--json]
 Examples:
 
 ```bash
-scripts/search.py search                # → search, search_off, manage_search…
-scripts/search.py sync cloud            # → cloud_sync, cloud_upload…
-scripts/search.py trash --limit 3       # top 3 trash-related icons
+python3 scripts/search.py search                # → search, search_off, manage_search…
+python3 scripts/search.py sync cloud            # → cloud_sync, cloud_upload…
+python3 scripts/search.py trash --limit 3       # top 3 trash-related icons
 ```
 
 ## Downloading
 
 ```bash
-scripts/download.py <icon_name> [options]
+python3 scripts/download.py <icon_name> [options]
 ```
 
 Options (all optional except the icon name):
@@ -77,7 +77,7 @@ The auto-named filename matches what `fonts.google.com` produces on download, e.
 The script prints the resulting file path on stdout, so you can chain it:
 
 ```bash
-out=$(scripts/download.py home --color 005bbb --out-dir ./icons)
+out=$(python3 scripts/download.py home --color 005bbb --out-dir ./icons)
 echo "saved $out"
 ```
 
@@ -85,16 +85,16 @@ echo "saved $out"
 
 ```bash
 # Default 24px outlined SVG
-scripts/download.py home
+python3 scripts/download.py home
 
 # Filled, heavy weight, 48px, in brand red
-scripts/download.py favorite --fill 1 --weight 700 --size 48 --color e91e63
+python3 scripts/download.py favorite --fill 1 --weight 700 --size 48 --color e91e63
 
 # Android drawable for the rounded family
-scripts/download.py settings --family rounded --format drawable
+python3 scripts/download.py settings --family rounded --format drawable
 
 # PNG for a slide deck, named explicitly
-scripts/download.py download --format png --size 48 --output ~/decks/dl.png
+python3 scripts/download.py download --format png --size 48 --output ~/decks/dl.png
 ```
 
 ## Format notes (why each format works the way it does)

@@ -11,8 +11,11 @@ Usage:
 
 import argparse
 import json
+import signal
 import sys
 from pathlib import Path
+
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 from fetch_metadata import fetch_metadata
 
