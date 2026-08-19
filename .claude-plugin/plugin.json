@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "material-icon-download",
+  "displayName": "Material Icon Download",
+  "description": "Download Material Symbols icons from Google Fonts as SVG, PNG, or Android Vector Drawable.",
+  "version": "1.0.0",
+  "author": {
+    "name": "xchacha20-poly1305"
+  },
+  "homepage": "https://github.com/xchacha20-poly1305/material-icon-download",
+  "repository": "https://github.com/xchacha20-poly1305/material-icon-download",
+  "license": "Unlicense",
+  "keywords": [
+    "icons",
+    "material-symbols",
+    "material-design",
+    "svg",
+    "png",
+    "android",
+    "google-fonts"
+  ]
+}

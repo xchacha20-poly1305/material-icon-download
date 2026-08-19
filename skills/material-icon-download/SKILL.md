@@ -8,7 +8,7 @@ license: See LICENSE
 
 This skill fetches icons from `fonts.gstatic.com` directly. The URL pattern was reverse-engineered from `fonts.google.com/icons`, so no browser, MCP server, or scraping is needed at runtime.
 
-Two scripts live in `scripts/`:
+Two scripts live in `scripts/` next to this `SKILL.md`. Resolve those paths from the skill root, not the user's project.
 
 - `search.py` — find icons by keyword. Searches the Material Symbols metadata catalog (cached locally) by name, tag, and category. Returns icons sorted by popularity.
 - `download.py` — download a specific icon. Supports SVG, PNG, and Android Vector Drawable (`*.xml`).
